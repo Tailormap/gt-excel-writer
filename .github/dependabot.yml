@@ -14,17 +14,6 @@ updates:
     labels:
       - infrastructure
       - dependency
-    # stay on springboot 4.0.x / spring-security 7.0.x / hibernate 7.3.x  for now
-    ignore:
-      - dependency-name: org.springframework.boot:spring-boot-starter-parent
-        versions:
-          - '>= 4.1'
-      - dependency-name: org.springframework.security:spring-security-test
-        versions:
-          - '>= 7.1'
-      - dependency-name: org.hibernate.orm:hibernate-maven-plugin
-        versions:
-          - '>= 7.4'
 
   - package-ecosystem: github-actions
     directory: "/"
@@ -35,45 +24,5 @@ updates:
       timezone: Europe/Amsterdam
     assignees:
       - mprins
-    labels:
-      - infrastructure
-
-  - package-ecosystem: docker
-    directories:
-      - "/"
-      - "/.devcontainer/"
-    schedule:
-      interval: weekly
-      day: thursday
-      time: "23:00"
-      timezone: Europe/Amsterdam
-    target-branch: main
-    assignees:
-      - mprins
-    labels:
-      - infrastructure
-    ignore:
-      # stay on Java 25 for now
-      - dependency-name: "eclipse-temurin"
-        versions:
-          - ">= 26"
-
-  - package-ecosystem: "docker-compose"
-    directory: "/build/ci/"
-    schedule:
-      interval: weekly
-      day: thursday
-      time: "23:00"
-      timezone: Europe/Amsterdam
-    labels:
-      - infrastructure
-
-  - package-ecosystem: "devcontainers"
-    directory: "/"
-    schedule:
-      interval: weekly
-      day: thursday
-      time: "23:00"
-      timezone: Europe/Amsterdam
     labels:
       - infrastructure
