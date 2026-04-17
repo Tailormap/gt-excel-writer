@@ -1,4 +1,4 @@
-# geotools-excel
+# gt-excel-writer
 
 A write-only Excel datastore for GeoTools.
 
