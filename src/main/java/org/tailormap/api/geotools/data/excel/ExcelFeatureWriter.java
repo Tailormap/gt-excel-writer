@@ -11,7 +11,9 @@ import java.util.Date;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Logger;
 import org.apache.poi.ss.SpreadsheetVersion;
+import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.CreationHelper;
 import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -36,6 +38,7 @@ public class ExcelFeatureWriter implements FeatureWriter<SimpleFeatureType, Simp
 
     private final ExcelDataStore dataStore;
     private final SXSSFSheet sheet;
+    private final CellStyle dateStyle;
     private SimpleFeature currentFeature;
     private int nextRow = 0;
 
@@ -47,6 +50,7 @@ public class ExcelFeatureWriter implements FeatureWriter<SimpleFeatureType, Simp
         @SuppressWarnings("PMD.CloseResource") // the workbook is managed in the store
         final SXSSFWorkbook workbook = this.dataStore.getWorkbook();
         this.sheet = workbook.createSheet(entry.getTypeName());
+        this.dateStyle = createDateStyle(workbook);
 
         final Row header = this.sheet.createRow(nextRow++);
         header.setRowStyle(getHeaderStyle(workbook));
@@ -114,9 +118,13 @@ public class ExcelFeatureWriter implements FeatureWriter<SimpleFeatureType, Simp
                 } else if (value instanceof Boolean b) {
                     row.createCell(i).setCellValue(b);
                 } else if (value instanceof Date d) {
-                    row.createCell(i).setCellValue(d);
+                    Cell cell = row.createCell(i);
+                    cell.setCellValue(d);
+                    cell.setCellStyle(this.dateStyle);
                 } else if (value instanceof Calendar c) {
-                    row.createCell(i).setCellValue(c);
+                    Cell cell = row.createCell(i);
+                    cell.setCellValue(c);
+                    cell.setCellStyle(this.dateStyle);
                 } else {
                     if (value.toString().length() > SpreadsheetVersion.EXCEL2007.getMaxTextLength()) {
                         // Excel has a maximum text length; if the value exceeds this, we truncate it and log a
@@ -146,10 +154,17 @@ public class ExcelFeatureWriter implements FeatureWriter<SimpleFeatureType, Simp
     }
 
     private CellStyle getHeaderStyle(Workbook workbook) {
-        CellStyle headerStyle = workbook.createCellStyle();
+        final CellStyle headerStyle = workbook.createCellStyle();
         Font headerFont = workbook.createFont();
         headerFont.setBold(true);
         headerStyle.setFont(headerFont);
         return headerStyle;
+    }
+
+    private CellStyle createDateStyle(Workbook workbook) {
+        final CellStyle dateStyle = workbook.createCellStyle();
+        CreationHelper createHelper = workbook.getCreationHelper();
+        dateStyle.setDataFormat(createHelper.createDataFormat().getFormat("yyyy-mm-dd hh:mm:ss"));
+        return dateStyle;
     }
 }
