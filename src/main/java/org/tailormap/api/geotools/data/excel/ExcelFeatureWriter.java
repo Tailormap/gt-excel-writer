@@ -38,6 +38,7 @@ public class ExcelFeatureWriter implements FeatureWriter<SimpleFeatureType, Simp
 
     private final ExcelDataStore dataStore;
     private final SXSSFSheet sheet;
+    private final CellStyle dateStyle;
     private SimpleFeature currentFeature;
     private int nextRow = 0;
 
@@ -49,6 +50,7 @@ public class ExcelFeatureWriter implements FeatureWriter<SimpleFeatureType, Simp
         @SuppressWarnings("PMD.CloseResource") // the workbook is managed in the store
         final SXSSFWorkbook workbook = this.dataStore.getWorkbook();
         this.sheet = workbook.createSheet(entry.getTypeName());
+        this.dateStyle = createDateStyle(workbook);
 
         final Row header = this.sheet.createRow(nextRow++);
         header.setRowStyle(getHeaderStyle(workbook));
@@ -118,11 +120,11 @@ public class ExcelFeatureWriter implements FeatureWriter<SimpleFeatureType, Simp
                 } else if (value instanceof Date d) {
                     Cell cell = row.createCell(i);
                     cell.setCellValue(d);
-                    cell.setCellStyle(getDateStyle(this.dataStore.getWorkbook()));
+                    cell.setCellStyle(this.dateStyle);
                 } else if (value instanceof Calendar c) {
                     Cell cell = row.createCell(i);
                     cell.setCellValue(c);
-                    cell.setCellStyle(getDateStyle(this.dataStore.getWorkbook()));
+                    cell.setCellStyle(this.dateStyle);
                 } else {
                     if (value.toString().length() > SpreadsheetVersion.EXCEL2007.getMaxTextLength()) {
                         // Excel has a maximum text length; if the value exceeds this, we truncate it and log a
@@ -159,7 +161,7 @@ public class ExcelFeatureWriter implements FeatureWriter<SimpleFeatureType, Simp
         return headerStyle;
     }
 
-    private CellStyle getDateStyle(Workbook workbook) {
+    private CellStyle createDateStyle(Workbook workbook) {
         final CellStyle dateStyle = workbook.createCellStyle();
         CreationHelper createHelper = workbook.getCreationHelper();
         dateStyle.setDataFormat(createHelper.createDataFormat().getFormat("yyyy-mm-dd hh:mm:ss"));
