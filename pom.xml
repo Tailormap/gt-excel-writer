@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.geotools</groupId>
+    <artifactId>unsupported</artifactId>
+    <version>35-SNAPSHOT</version>
+  </parent>
+  <artifactId>gt-excel-writer</artifactId>
+  <packaging>jar</packaging>
+  <name>Excel writing store</name>
+  <description>A DataStore for writing to Excel workbooks.</description>
+  <inceptionYear>2026</inceptionYear>
+  <organization>
+    <name>B3Partners B.V.</name>
+    <url>https://www.b3partners.nl/</url>
+  </organization>
+  <developers>
+    <developer>
+      <id>mprins</id>
+      <name>Mark Prins</name>
+      <email>mprins@users.sf.net</email>
+      <organization>B3Partners BV</organization>
+      <organizationUrl>https://b3partners.nl/</organizationUrl>
+      <roles>
+        <role>Java Developer</role>
+      </roles>
+      <timezone>+1</timezone>
+    </developer>
+  </developers>
+  <scm>
+    <connection>scm:git:git@github.com:Tailormap/gt-excel-writer.git</connection>
+    <developerConnection>scm:git:git@github.com:Tailormap/gt-excel-writer.git</developerConnection>
+    <url>https://github.com/Tailormap/gt-excel-writer/</url>
+  </scm>
+  <issueManagement>
+    <system>Jira</system>
+    <url>https://b3partners.atlassian.net/browse/HTM</url>
+  </issueManagement>
+  <ciManagement>
+    <system>Github Actions</system>
+    <url>https://github.com/Tailormap/gt-excel-writer/actions</url>
+  </ciManagement>
+  <distributionManagement>
+    <repository>
+      <id>repo.b3p.nl</id>
+      <name>B3Partners releases repository</name>
+      <url>https://repo.b3p.nl/nexus/repository/releases/</url>
+    </repository>
+    <snapshotRepository>
+      <id>repo.b3p.nl</id>
+      <name>B3Partners snapshots repository</name>
+      <url>https://repo.b3p.nl/nexus/repository/snapshots/</url>
+    </snapshotRepository>
+  </distributionManagement>
+  <properties>
+    <java.version>17</java.version>
+    <maven.compiler.source>${java.version}</maven.compiler.source>
+    <maven.compiler.target>${java.version}</maven.compiler.target>
+    <maven.compiler.release>${java.version}</maven.compiler.release>
+    <apache.poi.version>5.5.1</apache.poi.version>
+  </properties>
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-compress</artifactId>
+        <version>1.28.0</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.poi</groupId>
+        <artifactId>poi</artifactId>
+        <version>${apache.poi.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.poi</groupId>
+        <artifactId>poi-ooxml</artifactId>
+        <version>${apache.poi.version}</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+  <dependencies>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-compress</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.poi</groupId>
+      <artifactId>poi</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.poi</groupId>
+      <artifactId>poi-ooxml</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.geotools</groupId>
+      <artifactId>gt-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.geotools</groupId>
+      <artifactId>gt-metadata</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.geotools</groupId>
+      <artifactId>gt-main</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-to-jul</artifactId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+  <repositories>
+    <repository>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+      <id>OSGeo</id>
+      <name>Releases hosted by OSGeo</name>
+      <url>https://repo.osgeo.org/repository/release/</url>
+    </repository>
+    <repository>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+      <id>OSGeoSNAPS</id>
+      <name>Snapshots hosted by OSGeo</name>
+      <url>https://repo.osgeo.org/repository/snapshot/</url>
+    </repository>
+  </repositories>
+</project>

@@ -3,6 +3,7 @@ pom.xml.tag
 pom.xml.releaseBackup
 pom.xml.versionsBackup
 pom.xml.next
+.spotless-index
 release.properties
 dependency-reduced-pom.xml
 buildNumber.properties
@@ -15,3 +16,10 @@ buildNumber.properties
 .project
 # JDT-specific (Eclipse Java Development Tools)
 .classpath
+
+# IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+*.ipr
+.run/

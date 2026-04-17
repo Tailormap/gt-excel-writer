@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<suppressions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.3.xsd"
+              xsi:schemaLocation="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.3.xsd https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.3.xsd">
+    <suppress>
+        <notes><![CDATA[file name: gt-coverage.jar]]></notes>
+        <gav regex="true">^org\.geotools:gt-coverage:.*$</gav>
+        <cpe>cpe:/a:image_processing_software:image_processing_software</cpe>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[file name: gt-swing.jar]]></notes>
+        <gav regex="true">^org\.geotools:gt-swing:.*$</gav>
+        <cve>CVE-2015-6737</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[file name: imageio-ext-arcgrid.jar]]></notes>
+        <gav regex="true">^it\.geosolutions\.imageio-ext:imageio-ext-arcgrid:.*$</gav>
+        <cpe>cpe:/a:arc:arc</cpe>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[file name: imageio-ext-gdalarcbinarygrid.jar]]></notes>
+        <gav regex="true">^it\.geosolutions\.imageio-ext:imageio-ext-gdalarcbinarygrid:.*$</gav>
+        <cpe>cpe:/a:arc:arc</cpe>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[file name: gt-sde-dummy.jar]]></notes>
+        <gav regex="true">^org\.geotools:gt-sde-dummy:.*$</gav>
+        <cpe>cpe:/a:arc:arc</cpe>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[file name: gt-app-schema-resolver.jar]]></notes>
+        <gav regex="true">^org\.geotools:gt-app-schema-resolver:.*$</gav>
+        <cve>CVE-2018-13661</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[file name: gt-app-schema.jar]]></notes>
+        <gav regex="true">^org\.geotools:gt-app-schema:.*$</gav>
+        <cve>CVE-2018-13661</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[file name: org.geotools:gt-main]]></notes>
+        <gav regex="true">^org\.geotools:gt-main:.*$</gav>
+        <cve>CVE-2018-18749</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[file name: jtds.jar]]></notes>
+        <gav regex="true">^net\.sourceforge\.jtds:jtds:.*$</gav>
+        <cpe>cpe:/a:microsoft:sql_server</cpe>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[file name: jcc-X.Y.Z.M.jar]]></notes>
+        <packageUrl regex="true">^pkg:maven/com\.ibm\.db2/jcc@.*$</packageUrl>
+        <cpe>cpe:/a:ibm:db2_server</cpe>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[module: org.geotools.jdbc:gt-jdbc-mysql:NN]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.geotools\.jdbc/gt\-jdbc\-mysql@.*$</packageUrl>
+        <cpe>cpe:/a:mysql:mysql</cpe>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+                   file name: reload4j-1.2.x.x.jar
+                   Reload4j has solved all log4j 1.x problems/vulnerabilities.
+                   including:
+                        - CVE-2019-17571 (Socket Server)
+                        - CVE-2020-9488 (SMTP appender)
+                        - CVE-2020-9493 (Chainsaw)
+                        - CVE-2021-4104 (JMSAppender)
+                        - CVE-2022-23302 (JMSSink)
+                        - CVE-2022-23305 (JDBCAppender)
+                        - CVE-2022-23307 (Chainsaw)
+           ]]>
+        </notes>
+        <packageUrl regex="true">^pkg:maven/ch\.qos\.reload4j/reload4j@.*$</packageUrl>
+        <cpe>cpe:/a:apache:log4j</cpe>
+    </suppress>
+</suppressions>

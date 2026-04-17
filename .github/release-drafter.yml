@@ -1,0 +1,52 @@
+tag-template: "gt-excel-writer-$NEXT_PATCH_VERSION"
+name-template: v$NEXT_PATCH_VERSION 🎁
+version-template: "$MAJOR.$MINOR.$PATCH"
+sort-by: 'title'
+
+template: |
+  # What’s Changed
+
+  $CHANGES
+
+categories:
+  - title: '🚀 New features and improvements'
+    labels:
+      - 'enhancement'
+      - 'feature'
+  - title: '⛓️‍💥 Breaking changes'
+    label: 'breaking'
+  - title: '🔨 Security fixes en updates'
+    labels:
+      - 'security'
+  - title: '🐛 Bug Fixes'
+    labels:
+      - 'bug'
+      - 'fix'
+      - 'bugfix'
+      - 'regression'
+  - title: '📖 Documentation updates'
+    label: 'documentation'
+  - title: '🚨 Removed / ⚠️ Deprecated'
+    labels: 
+      - 'removed'
+      - 'deprecated'
+  - title: '🚦 Tests and Infrastructure'
+    labels:
+      - 'tests'
+      - 'infrastructure'
+    collapse-after: 10
+  - title: '🔨 Dependency updates'
+    labels: 
+      - 'dependency'
+      - 'dependencies'
+    collapse-after: 10
+
+replacers:
+  - search: '/CVE-(\d{4})-(\d+)/g'
+    replace: '[CVE-$1-$2](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-$1-$2)'
+  - search: '/HTM-(\d+)/g'
+    replace: '[HTM-$1](https://b3partners.atlassian.net/browse/HTM-$1)'
+  - search: '/EK-(\d+)/g'
+    replace: '[EK-$1](https://b3partners.atlassian.net/browse/EK-$1)'
+  - search: '/EO-(\d+)/g'
+    replace: '[EO-$1](https://b3partners.atlassian.net/browse/EO-$1)'
