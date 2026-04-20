@@ -135,4 +135,15 @@
       <url>https://repo.osgeo.org/repository/snapshot/</url>
     </repository>
   </repositories>
+  <build>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>com.github.spotbugs</groupId>
+          <artifactId>spotbugs-maven-plugin</artifactId>
+          <version>4.9.8.3</version>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+  </build>
 </project>
