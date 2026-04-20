@@ -42,16 +42,13 @@ public class ExcelFeatureStore extends ContentFeatureStore {
             while (iterator.hasNext()) {
                 SimpleFeature sourceFeature = iterator.next();
                 SimpleFeature targetFeature = writer.next();
-
-                logger.finest("Source feature " + sourceFeature.getAttributes());
-
+                logger.finer("Source feature " + sourceFeature.getAttributes());
                 for (AttributeDescriptor att : targetFeature.getFeatureType().getAttributeDescriptors()) {
-                    logger.finest("Updating attribute " + att.getLocalName() + ", value "
+                    logger.finer("Updating attribute " + att.getLocalName() + ", value "
                             + sourceFeature.getAttribute(att.getName()));
                     targetFeature.setAttribute(att.getName(), sourceFeature.getAttribute(att.getName()));
                 }
-                logger.finest("Target feature (updated) " + targetFeature.getAttributes());
-
+                logger.finer("Target feature (updated) " + targetFeature.getAttributes());
                 writer.write();
                 if (sourceFeature.getIdentifier() != null) {
                     writtenFeatureIds.add(sourceFeature.getIdentifier());
