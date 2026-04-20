@@ -6,8 +6,8 @@ permissions:
 
 env:
   MAVEN_OPTS: -Djava.awt.headless=true
-  MAVEN_VERSION: '3.9.14'
-  JAVA_VERSION: '17'
+  MAVEN_VERSION: '3.9.15'
+  JAVA_VERSION: '21'
 
 concurrency:
   group: ${{ github.workflow }}-${{ ( github.ref == 'refs/heads/main' || github.ref == 'refs/heads/release' ) && format('ci-main-{0}', github.sha) || format('ci-main-{0}', github.ref) }}
@@ -47,7 +47,7 @@ jobs:
       - name: 'Test with Maven'
         run: |
           mvn -B -fae clean install -Dspotless.action=check -Dpom.fmt.action=verify -Dqa=true -DskipTests=true
-          mvn -B -fae -e test -Dlogging-profile=verbose-logging
+          mvn -B -fae -e install -Dlogging-profile=verbose-logging
 
       - name: 'Upload coverage to Codecov'
         uses: codecov/codecov-action@v6
