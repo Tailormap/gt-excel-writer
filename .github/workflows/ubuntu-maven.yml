@@ -47,7 +47,7 @@ jobs:
       - name: 'Test with Maven'
         run: |
           mvn -B -fae clean install -Dspotless.action=check -Dpom.fmt.action=verify -Dqa=true -DskipTests=true
-          mvn -B -fae -e test -Dlogging-profile=verbose-logging
+          mvn -B -fae -e install -Dlogging-profile=verbose-logging
 
       - name: 'Upload coverage to Codecov'
         uses: codecov/codecov-action@v6
