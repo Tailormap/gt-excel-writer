@@ -33,7 +33,7 @@ import org.geotools.util.logging.Logging;
 
 public class ExcelDataStore extends ContentDataStore implements FileDataStore {
     private SimpleFeatureType schema;
-    private final NameImpl typeName;
+    private NameImpl typeName;
     private final SXSSFWorkbook workbook;
     private final File excelFile;
     private static final Logger logger = Logging.getLogger(ExcelDataStore.class);
@@ -142,6 +142,7 @@ public class ExcelDataStore extends ContentDataStore implements FileDataStore {
     @Override
     public void createSchema(SimpleFeatureType featureType) {
         schema = featureType;
+        typeName = (NameImpl) schema.getName();
     }
 
     @Override
