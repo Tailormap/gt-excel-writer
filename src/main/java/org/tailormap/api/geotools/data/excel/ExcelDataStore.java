@@ -36,6 +36,7 @@ public class ExcelDataStore extends ContentDataStore implements FileDataStore {
     private NameImpl typeName;
     private final SXSSFWorkbook workbook;
     private final File excelFile;
+    private boolean workbookDisposed = false;
     private static final Logger logger = Logging.getLogger(ExcelDataStore.class);
 
     public ExcelDataStore(NameImpl typeName, File excelFile) {
@@ -62,13 +63,17 @@ public class ExcelDataStore extends ContentDataStore implements FileDataStore {
 
     @Override
     public void dispose() {
-        try (workbook;
-                FileOutputStream out = new FileOutputStream(excelFile)) {
-            workbook.write(out);
-            workbook.close();
-            out.flush();
-        } catch (IOException e) {
-            logger.log(Level.SEVERE, "Error writing Excel workbook to file", e);
+        if (!workbookDisposed) {
+            try (workbook;
+                    FileOutputStream out = new FileOutputStream(excelFile)) {
+                workbook.write(out);
+                workbook.close();
+                out.flush();
+            } catch (IOException e) {
+                logger.log(Level.SEVERE, "Error writing Excel workbook to file", e);
+            } finally {
+                workbookDisposed = true;
+            }
         }
         super.dispose();
     }
