@@ -60,6 +60,9 @@
     <maven.compiler.target>${java.version}</maven.compiler.target>
     <maven.compiler.release>${java.version}</maven.compiler.release>
     <apache.poi.version>5.5.1</apache.poi.version>
+    <failOnValidation>true</failOnValidation>
+    <skipJavaDoc>false</skipJavaDoc>
+    <javadoc.doclint>all,-missing</javadoc.doclint>
   </properties>
   <dependencyManagement>
     <dependencies>
@@ -152,6 +155,41 @@
           <source>${java.version}</source>
           <target>${java.version}</target>
           <release>${java.version}</release>
+        </configuration>
+      </plugin>
+      <plugin>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <version>3.12.0</version>
+        <executions>
+          <execution>
+            <id>attach-javadoc</id>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+            <phase>verify</phase>
+            <configuration>
+              <release>${java.version}</release>
+              <notimestamp>true</notimestamp>
+              <failOnWarnings>false</failOnWarnings>
+              <failOnError>${failOnValidation}</failOnError>
+              <skip>${skipJavaDoc}</skip>
+              <doclint>${javadoc.doclint}</doclint>
+              <links>
+                <link>https://poi.apache.org/apidocs/5.0/</link>
+                <link>https://commons.apache.org/proper/commons-compress/apidocs/</link>
+                <link>https://docs.junit.org/5.14.4/api/</link>
+              </links>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <artifactId>maven-release-plugin</artifactId>
+        <version>3.3.1</version>
+        <configuration>
+          <pushChanges>true</pushChanges>
+          <releaseProfiles>release</releaseProfiles>
+          <tagNameFormat>gt-excel-writer-@{project.version}</tagNameFormat>
         </configuration>
       </plugin>
     </plugins>
