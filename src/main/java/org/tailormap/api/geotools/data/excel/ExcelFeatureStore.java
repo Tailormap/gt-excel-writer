@@ -24,12 +24,43 @@ import org.geotools.feature.FeatureIterator;
 import org.geotools.geometry.jts.ReferencedEnvelope;
 import org.geotools.util.logging.Logging;
 
+/**
+ * Feature store implementation for Excel-based data backed by an {@link ExcelDataStore}.
+ *
+ * <p>This class provides read and write access to features stored in Excel sheets by delegating to
+ * {@link ExcelFeatureReader} and {@link ExcelFeatureWriter}. It intentionally implements only the operations required
+ * for the current use-cases; methods such as {@link #getBoundsInternal(Query)} and {@link #getCountInternal(Query)} are
+ * not implemented and will return conservative defaults.
+ *
+ * <p>Instances are created with an option to enable cell auto-sizing when writing features. Enabling auto-sizing can
+ * improve output appearance but may significantly impact performance for large datasets; the default is disabled.
+ */
 public class ExcelFeatureStore extends ContentFeatureStore {
-
+    private final boolean enableCellAutoSizing;
     private static final Logger logger = Logging.getLogger(ExcelFeatureStore.class);
 
+    /**
+     * Creates the content feature store, with cell auto-sizing disabled
+     *
+     * @param entry The content entry this feature store belongs to.
+     * @param query The defining query.
+     */
     public ExcelFeatureStore(ContentEntry entry, Query query) {
         super(entry, query);
+        this.enableCellAutoSizing = false;
+    }
+
+    /**
+     * Creates the content feature store.
+     *
+     * @param entry The content entry this feature store belongs to
+     * @param query The defining query
+     * @param enableCellAutoSizing whether to enable auto-sizing of cells when writing all features. This can
+     *     significantly impact performance when writing large datasets. Defaults to false.
+     */
+    public ExcelFeatureStore(ContentEntry entry, Query query, boolean enableCellAutoSizing) {
+        super(entry, query);
+        this.enableCellAutoSizing = enableCellAutoSizing;
     }
 
     @Override
@@ -42,13 +73,11 @@ public class ExcelFeatureStore extends ContentFeatureStore {
             while (iterator.hasNext()) {
                 SimpleFeature sourceFeature = iterator.next();
                 SimpleFeature targetFeature = writer.next();
-                logger.finer("Source feature " + sourceFeature.getAttributes());
+                logger.finest("Source feature " + sourceFeature.getAttributes());
                 for (AttributeDescriptor att : targetFeature.getFeatureType().getAttributeDescriptors()) {
-                    logger.finer("Updating attribute " + att.getLocalName() + ", value "
-                            + sourceFeature.getAttribute(att.getName()));
                     targetFeature.setAttribute(att.getName(), sourceFeature.getAttribute(att.getName()));
                 }
-                logger.finer("Target feature (updated) " + targetFeature.getAttributes());
+                logger.finest("Target feature (updated) " + targetFeature.getAttributes());
                 writer.write();
                 if (sourceFeature.getIdentifier() != null) {
                     writtenFeatureIds.add(sourceFeature.getIdentifier());
@@ -62,7 +91,7 @@ public class ExcelFeatureStore extends ContentFeatureStore {
     @Override
     protected FeatureWriter<SimpleFeatureType, SimpleFeature> getWriterInternal(Query query, int flags)
             throws IOException {
-        return new ExcelFeatureWriter(entry, query);
+        return new ExcelFeatureWriter(entry, query, enableCellAutoSizing);
     }
 
     @Override
