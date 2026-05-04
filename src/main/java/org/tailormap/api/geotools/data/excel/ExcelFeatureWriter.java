@@ -47,7 +47,7 @@ public class ExcelFeatureWriter implements FeatureWriter<SimpleFeatureType, Simp
     private final CellStyle errorStyle;
     private SimpleFeature currentFeature;
     private int nextRow = 0;
-    private CreationHelper creationHelper;
+    private final CreationHelper creationHelper;
 
     public ExcelFeatureWriter(ContentEntry entry, Query query) throws IOException {
         this.state = entry.getState(Transaction.AUTO_COMMIT);
