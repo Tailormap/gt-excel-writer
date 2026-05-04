@@ -21,9 +21,16 @@ public class ExcelDataStoreFactory implements FileDataStoreFactorySpi {
     public static final Param FILE_PARAM = new Param("file", File.class, "Excel file to write the data", true);
     public static final Param SHEET_PARAM =
             new Param("sheet", String.class, "Name of the sheet to write the data, eg. the feature type name", false);
+    public static final Param ENABLE_CELL_AUTOSIZING_OPTIONS_PARAM = new Param(
+            "enableCellAutoSizing",
+            Boolean.class,
+            "Whether to auto-size cells when writing the Excel sheet. "
+                    + "Enabling this can be expensive for large datasets and may increase memory usage. Defaults to false.",
+            false,
+            false);
     private static final String FILE_TYPE = "xlsx";
     private static final String[] EXTENSIONS = {"." + FILE_TYPE};
-    private static final Param[] PARAMETERS_INFO = {FILE_PARAM};
+    private static final Param[] PARAMETERS_INFO = {FILE_PARAM, SHEET_PARAM, ENABLE_CELL_AUTOSIZING_OPTIONS_PARAM};
 
     @Override
     public FileDataStore createDataStore(URL url) throws IOException {
@@ -41,7 +48,10 @@ public class ExcelDataStoreFactory implements FileDataStoreFactorySpi {
         if (sheetName == null) {
             sheetName = FilenameUtils.getBaseName(file.getPath());
         }
-        return new ExcelDataStore(new NameImpl(sheetName), file);
+
+        Boolean enableCellAutoSizingOption = (Boolean) ENABLE_CELL_AUTOSIZING_OPTIONS_PARAM.lookUp(params);
+        boolean enableCellAutoSizing = Boolean.TRUE.equals(enableCellAutoSizingOption);
+        return new ExcelDataStore(new NameImpl(sheetName), file, enableCellAutoSizing);
     }
 
     @Override

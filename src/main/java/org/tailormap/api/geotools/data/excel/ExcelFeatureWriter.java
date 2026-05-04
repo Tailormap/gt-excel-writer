@@ -8,6 +8,7 @@ package org.tailormap.api.geotools.data.excel;
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Logger;
 import org.apache.poi.ss.SpreadsheetVersion;
@@ -34,6 +35,17 @@ import org.geotools.feature.simple.SimpleFeatureBuilder;
 import org.geotools.util.logging.Logging;
 import org.locationtech.jts.geom.Geometry;
 
+/**
+ * FeatureWriter implementation that writes {@link SimpleFeature} instances to an Apache POI streaming XSSF sheet
+ * ({@link SXSSFSheet}) managed by the associated {@link ExcelDataStore}.
+ *
+ * <p>This writer is append-only: it creates a header row with attribute names and writes subsequent rows for feature
+ * attributes. Dates and calendars are written with dedicated cell styles; long text values are truncated (omitted for
+ * geometry types). If {@code enableCellAutoSizing} is enabled the writer will auto-size written columns.
+ *
+ * <p>Instances are tied to a {@link ContentEntry} and use {@link Transaction#AUTO_COMMIT} state. Calling
+ * {@link #close()} will close the underlying content state.
+ */
 public class ExcelFeatureWriter implements FeatureWriter<SimpleFeatureType, SimpleFeature> {
     private static final Logger logger = Logging.getLogger(ExcelFeatureWriter.class);
 
@@ -48,15 +60,41 @@ public class ExcelFeatureWriter implements FeatureWriter<SimpleFeatureType, Simp
     private SimpleFeature currentFeature;
     private int nextRow = 0;
     private final CreationHelper creationHelper;
+    private final boolean enableCellAutoSizing;
+    private final Calendar calendar = Calendar.getInstance();
 
+    /**
+     * Creates a new ExcelFeatureWriter for the given content entry and query, with cell auto-sizing disabled.
+     *
+     * @param entry the content entry this writer belongs to
+     * @param query the defining query
+     * @throws IOException if getting the schema from the datastore fails
+     */
     public ExcelFeatureWriter(ContentEntry entry, Query query) throws IOException {
+        this(entry, query, false);
+    }
+    /**
+     * Creates a new ExcelFeatureWriter for the given content entry and query.
+     *
+     * @param entry the content entry this writer belongs to
+     * @param query the defining query
+     * @param enableCellAutoSizing whether to enable auto-sizing of cells when writing all features. This can
+     *     significantly impact performance for writing large datasets. Defaults to false.
+     * @throws IOException if getting the schema from the datastore fails
+     */
+    public ExcelFeatureWriter(ContentEntry entry, Query query, boolean enableCellAutoSizing) throws IOException {
+        Objects.requireNonNull(query, "query must not be null");
         this.state = entry.getState(Transaction.AUTO_COMMIT);
         this.dataStore = (ExcelDataStore) entry.getDataStore();
         this.featureBuilder = new SimpleFeatureBuilder(this.dataStore.getSchema());
+        this.enableCellAutoSizing = enableCellAutoSizing;
 
         @SuppressWarnings("PMD.CloseResource") // the workbook is managed in the store
         final SXSSFWorkbook workbook = this.dataStore.getWorkbook();
         this.sheet = workbook.createSheet(entry.getTypeName());
+        if (this.enableCellAutoSizing) {
+            this.sheet.trackAllColumnsForAutoSizing();
+        }
         this.dateStyle = createDateStyle(workbook);
         this.dateTimeStyle = createDateTimeStyle(workbook);
         this.errorStyle = createErrorStyle(workbook);
@@ -183,17 +221,17 @@ public class ExcelFeatureWriter implements FeatureWriter<SimpleFeatureType, Simp
                 row.createCell(i).setBlank();
             }
         }
-        // this could get expensive for large sets!
-        this.sheet.trackAllColumnsForAutoSizing();
-        row.forEach(item -> {
-            this.sheet.autoSizeColumn(item.getColumnIndex());
-        });
+
+        if (this.enableCellAutoSizing) {
+            row.forEach(item -> {
+                this.sheet.autoSizeColumn(item.getColumnIndex());
+            });
+        }
     }
 
     private boolean hasTime(Date date) {
-        Calendar cal = Calendar.getInstance();
-        cal.setTime(date);
-        return this.hasTime(cal);
+        calendar.setTime(date);
+        return this.hasTime(calendar);
     }
 
     private boolean hasTime(Calendar cal) {

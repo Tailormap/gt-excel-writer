@@ -37,14 +37,35 @@ public class ExcelDataStore extends ContentDataStore implements FileDataStore {
     private final SXSSFWorkbook workbook;
     private final File excelFile;
     private boolean workbookDisposed = false;
+    private boolean enableCellAutoSizing;
     private static final Logger logger = Logging.getLogger(ExcelDataStore.class);
 
+    /**
+     * Create an ExcelDataStore for writing to the specified Excel file.
+     *
+     * @param typeName the FeatureType name
+     * @param excelFile the file to write the Excel data to. The file will must be created/exist.
+     */
     public ExcelDataStore(NameImpl typeName, File excelFile) {
+        this(typeName, excelFile, false);
+    }
+
+    /**
+     * Create an ExcelDataStore for writing to the specified Excel file.
+     *
+     * @param typeName the FeatureType name
+     * @param excelFile the file to write the Excel data to. The file will must be created/exist.
+     * @param enableCellAutoSizing whether to enable auto-sizing of cells when writing all features. This can
+     *     significantly impact performance for writing large datasets. Defaults to false.
+     */
+    public ExcelDataStore(NameImpl typeName, File excelFile, boolean enableCellAutoSizing) {
         this.typeName = typeName;
         this.excelFile = excelFile;
+        this.enableCellAutoSizing = enableCellAutoSizing;
         // create a new workbook with a small window size for streaming
         this.workbook = new SXSSFWorkbook(1);
-        this.workbook.setCompressTempFiles(true);
+        // TODO / EVALUATE avoid performance penalty of compressing the temporary files,
+        // this.workbook.setCompressTempFiles(enableCellAutoSizing);
         // see https://bugs.documentfoundation.org/show_bug.cgi?id=163384
         this.workbook.setZip64Mode(Zip64Mode.AlwaysWithCompatibility);
     }
@@ -110,7 +131,7 @@ public class ExcelDataStore extends ContentDataStore implements FileDataStore {
     @Override
     protected ContentFeatureSource createFeatureSource(ContentEntry entry) throws IOException {
         if (excelFile != null && excelFile.canWrite()) {
-            return new ExcelFeatureStore(entry, Query.ALL);
+            return new ExcelFeatureStore(entry, Query.ALL, this.enableCellAutoSizing);
         } else {
             logger.severe("Cannot write Excel File");
             // TODO not used?
@@ -153,5 +174,13 @@ public class ExcelDataStore extends ContentDataStore implements FileDataStore {
     @Override
     public FeatureReader<SimpleFeatureType, SimpleFeature> getFeatureReader() {
         throw new UnsupportedOperationException("ExcelDataStore is write-only, cannot get reader");
+    }
+
+    public boolean isEnableCellAutoSizing() {
+        return enableCellAutoSizing;
+    }
+
+    public void setEnableCellAutoSizing(boolean enableCellAutoSizing) {
+        this.enableCellAutoSizing = enableCellAutoSizing;
     }
 }
