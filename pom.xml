@@ -4,7 +4,7 @@
   <parent>
     <groupId>org.geotools</groupId>
     <artifactId>unsupported</artifactId>
-    <version>35-SNAPSHOT</version>
+    <version>35-RC</version>
   </parent>
   <artifactId>gt-excel-writer</artifactId>
   <packaging>jar</packaging>
@@ -31,6 +31,7 @@
   <scm>
     <connection>scm:git:git@github.com:Tailormap/gt-excel-writer.git</connection>
     <developerConnection>scm:git:git@github.com:Tailormap/gt-excel-writer.git</developerConnection>
+    <tag>gt-excel-writer-35-RC</tag>
     <url>https://github.com/Tailormap/gt-excel-writer/</url>
   </scm>
   <issueManagement>
