@@ -12,7 +12,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.apache.commons.compress.archivers.zip.Zip64Mode;
 import org.apache.poi.ss.SpreadsheetVersion;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.geotools.api.data.FeatureReader;
@@ -65,9 +64,12 @@ public class ExcelDataStore extends ContentDataStore implements FileDataStore {
         // create a new workbook with a small window size for streaming
         this.workbook = new SXSSFWorkbook(1);
         // TODO / EVALUATE avoid performance penalty of compressing the temporary files,
-        // this.workbook.setCompressTempFiles(enableCellAutoSizing);
+        // this.workbook.setCompressTempFiles(true);
+
+        // setting this option will make excel and old versions of open/libre office and google docs break,
+        // now it is only broken for current libreoffice
         // see https://bugs.documentfoundation.org/show_bug.cgi?id=163384
-        this.workbook.setZip64Mode(Zip64Mode.AlwaysWithCompatibility);
+        // this.workbook.setZip64Mode(Zip64Mode.AlwaysWithCompatibility);
     }
 
     public SXSSFWorkbook getWorkbook() {
