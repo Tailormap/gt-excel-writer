@@ -68,11 +68,6 @@
   <dependencyManagement>
     <dependencies>
       <dependency>
-        <groupId>org.apache.commons</groupId>
-        <artifactId>commons-compress</artifactId>
-        <version>1.28.0</version>
-      </dependency>
-      <dependency>
         <groupId>org.apache.poi</groupId>
         <artifactId>poi</artifactId>
         <version>${apache.poi.version}</version>
@@ -85,10 +80,6 @@
     </dependencies>
   </dependencyManagement>
   <dependencies>
-    <dependency>
-      <groupId>org.apache.commons</groupId>
-      <artifactId>commons-compress</artifactId>
-    </dependency>
     <dependency>
       <groupId>org.apache.poi</groupId>
       <artifactId>poi</artifactId>
@@ -177,7 +168,6 @@
               <doclint>${javadoc.doclint}</doclint>
               <links>
                 <link>https://poi.apache.org/apidocs/5.0/</link>
-                <link>https://commons.apache.org/proper/commons-compress/apidocs/</link>
                 <link>https://docs.junit.org/5.14.4/api/</link>
               </links>
             </configuration>
