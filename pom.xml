@@ -4,9 +4,10 @@
   <parent>
     <groupId>org.geotools</groupId>
     <artifactId>unsupported</artifactId>
-    <version>35-SNAPSHOT</version>
+    <version>35-RC</version>
   </parent>
   <artifactId>gt-excel-writer</artifactId>
+  <version>35-SNAPSHOT</version>
   <packaging>jar</packaging>
   <name>Excel writing store</name>
   <description>A DataStore for writing to Excel workbooks.</description>
