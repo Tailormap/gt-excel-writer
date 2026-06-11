@@ -18,89 +18,89 @@ import org.geotools.feature.NameImpl;
 import org.geotools.util.URLs;
 
 public class ExcelDataStoreFactory implements FileDataStoreFactorySpi {
-    public static final Param FILE_PARAM = new Param("file", File.class, "Excel file to write the data", true);
-    public static final Param SHEET_PARAM =
-            new Param("sheet", String.class, "Name of the sheet to write the data, eg. the feature type name", false);
-    public static final Param ENABLE_CELL_AUTOSIZING_OPTIONS_PARAM = new Param(
-            "enableCellAutoSizing",
-            Boolean.class,
-            "Whether to auto-size cells when writing the Excel sheet. "
-                    + "Enabling this can be expensive for large datasets and may increase memory usage. Defaults to false.",
-            false,
-            false);
-    private static final String FILE_TYPE = "xlsx";
-    private static final String[] EXTENSIONS = {"." + FILE_TYPE};
-    private static final Param[] PARAMETERS_INFO = {FILE_PARAM, SHEET_PARAM, ENABLE_CELL_AUTOSIZING_OPTIONS_PARAM};
+  public static final Param FILE_PARAM = new Param("file", File.class, "Excel file to write the data", true);
+  public static final Param SHEET_PARAM =
+      new Param("sheet", String.class, "Name of the sheet to write the data, eg. the feature type name", false);
+  public static final Param ENABLE_CELL_AUTOSIZING_OPTIONS_PARAM = new Param(
+      "enableCellAutoSizing",
+      Boolean.class,
+      "Whether to auto-size cells when writing the Excel sheet. "
+          + "Enabling this can be expensive for large datasets and may increase memory usage. Defaults to false.",
+      false,
+      false);
+  private static final String FILE_TYPE = "xlsx";
+  private static final String[] EXTENSIONS = {"." + FILE_TYPE};
+  private static final Param[] PARAMETERS_INFO = {FILE_PARAM, SHEET_PARAM, ENABLE_CELL_AUTOSIZING_OPTIONS_PARAM};
 
-    @Override
-    public FileDataStore createDataStore(URL url) throws IOException {
-        File file = URLs.urlToFile(url);
-        return (ExcelDataStore) this.createDataStore(Map.of(FILE_PARAM.key, file));
+  @Override
+  public FileDataStore createDataStore(URL url) throws IOException {
+    File file = URLs.urlToFile(url);
+    return (ExcelDataStore) this.createDataStore(Map.of(FILE_PARAM.key, file));
+  }
+
+  @Override
+  public DataStore createDataStore(Map<String, ?> params) throws IOException {
+    File file = (File) FILE_PARAM.lookUp(params);
+    if (file == null) {
+      throw new IOException("No file parameter provided");
+    }
+    String sheetName = (String) SHEET_PARAM.lookUp(params);
+    if (sheetName == null) {
+      sheetName = FilenameUtils.getBaseName(file.getPath());
     }
 
-    @Override
-    public DataStore createDataStore(Map<String, ?> params) throws IOException {
-        File file = (File) FILE_PARAM.lookUp(params);
-        if (file == null) {
-            throw new IOException("No file parameter provided");
-        }
-        String sheetName = (String) SHEET_PARAM.lookUp(params);
-        if (sheetName == null) {
-            sheetName = FilenameUtils.getBaseName(file.getPath());
-        }
+    Boolean enableCellAutoSizingOption = (Boolean) ENABLE_CELL_AUTOSIZING_OPTIONS_PARAM.lookUp(params);
+    boolean enableCellAutoSizing = Boolean.TRUE.equals(enableCellAutoSizingOption);
+    return new ExcelDataStore(new NameImpl(sheetName), file, enableCellAutoSizing);
+  }
 
-        Boolean enableCellAutoSizingOption = (Boolean) ENABLE_CELL_AUTOSIZING_OPTIONS_PARAM.lookUp(params);
-        boolean enableCellAutoSizing = Boolean.TRUE.equals(enableCellAutoSizingOption);
-        return new ExcelDataStore(new NameImpl(sheetName), file, enableCellAutoSizing);
-    }
+  @Override
+  public DataStore createNewDataStore(Map<String, ?> params) throws IOException {
+    return this.createDataStore(params);
+  }
 
-    @Override
-    public DataStore createNewDataStore(Map<String, ?> params) throws IOException {
-        return this.createDataStore(params);
-    }
+  @Override
+  public String getTypeName(URL url) {
+    throw new UnsupportedOperationException("Not implemented.");
+  }
 
-    @Override
-    public String getTypeName(URL url) {
-        throw new UnsupportedOperationException("Not implemented.");
-    }
+  /**
+   * @param url URL to a real file (may not be local)
+   * @return true if the file extension is supported, false otherwise
+   */
+  @Override
+  public boolean canProcess(URL url) {
+    return FILE_TYPE.equalsIgnoreCase(FilenameUtils.getExtension(
+        Objects.requireNonNull(URLs.urlToFile(url)).toString()));
+  }
 
-    /**
-     * @param url URL to a real file (may not be local)
-     * @return true if the file extension is supported, false otherwise
-     */
-    @Override
-    public boolean canProcess(URL url) {
-        return FILE_TYPE.equalsIgnoreCase(FilenameUtils.getExtension(
-                Objects.requireNonNull(URLs.urlToFile(url)).toString()));
-    }
+  @Override
+  public String[] getFileExtensions() {
+    return EXTENSIONS;
+  }
 
-    @Override
-    public String[] getFileExtensions() {
-        return EXTENSIONS;
-    }
+  @Override
+  public String getDisplayName() {
+    return "Excel DataStore (write only)";
+  }
 
-    @Override
-    public String getDisplayName() {
-        return "Excel DataStore (write only)";
-    }
+  @Override
+  public String getDescription() {
+    return "A Datastore backed by an Excel Workbook";
+  }
 
-    @Override
-    public String getDescription() {
-        return "A Datastore backed by an Excel Workbook";
-    }
+  @Override
+  public Param[] getParametersInfo() {
+    return PARAMETERS_INFO;
+  }
 
-    @Override
-    public Param[] getParametersInfo() {
-        return PARAMETERS_INFO;
+  @Override
+  public boolean isAvailable() {
+    try {
+      String ignored = ExcelDataStore.class.getName();
+    } catch (Exception e) {
+      return false;
     }
-
-    @Override
-    public boolean isAvailable() {
-        try {
-            String ignored = ExcelDataStore.class.getName();
-        } catch (Exception e) {
-            return false;
-        }
-        return true;
-    }
+    return true;
+  }
 }

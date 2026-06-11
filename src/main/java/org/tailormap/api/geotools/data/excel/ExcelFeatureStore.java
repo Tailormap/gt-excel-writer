@@ -36,93 +36,93 @@ import org.geotools.util.logging.Logging;
  * improve output appearance but may significantly impact performance for large datasets; the default is disabled.
  */
 public class ExcelFeatureStore extends ContentFeatureStore {
-    private final boolean enableCellAutoSizing;
-    private static final Logger logger = Logging.getLogger(ExcelFeatureStore.class);
+  private final boolean enableCellAutoSizing;
+  private static final Logger logger = Logging.getLogger(ExcelFeatureStore.class);
 
-    /**
-     * Creates the content feature store, with cell auto-sizing disabled
-     *
-     * @param entry The content entry this feature store belongs to.
-     * @param query The defining query.
-     */
-    public ExcelFeatureStore(ContentEntry entry, Query query) {
-        super(entry, query);
-        this.enableCellAutoSizing = false;
-    }
+  /**
+   * Creates the content feature store, with cell auto-sizing disabled
+   *
+   * @param entry The content entry this feature store belongs to.
+   * @param query The defining query.
+   */
+  public ExcelFeatureStore(ContentEntry entry, Query query) {
+    super(entry, query);
+    this.enableCellAutoSizing = false;
+  }
 
-    /**
-     * Creates the content feature store.
-     *
-     * @param entry The content entry this feature store belongs to
-     * @param query The defining query
-     * @param enableCellAutoSizing whether to enable auto-sizing of cells when writing all features. This can
-     *     significantly impact performance when writing large datasets. Defaults to false.
-     */
-    public ExcelFeatureStore(ContentEntry entry, Query query, boolean enableCellAutoSizing) {
-        super(entry, query);
-        this.enableCellAutoSizing = enableCellAutoSizing;
-    }
+  /**
+   * Creates the content feature store.
+   *
+   * @param entry The content entry this feature store belongs to
+   * @param query The defining query
+   * @param enableCellAutoSizing whether to enable auto-sizing of cells when writing all features. This can
+   *     significantly impact performance when writing large datasets. Defaults to false.
+   */
+  public ExcelFeatureStore(ContentEntry entry, Query query, boolean enableCellAutoSizing) {
+    super(entry, query);
+    this.enableCellAutoSizing = enableCellAutoSizing;
+  }
 
-    @Override
-    public List<FeatureId> addFeatures(FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection)
-            throws IOException {
+  @Override
+  public List<FeatureId> addFeatures(FeatureCollection<SimpleFeatureType, SimpleFeature> featureCollection)
+      throws IOException {
 
-        List<FeatureId> writtenFeatureIds = new ArrayList<>();
-        try (FeatureWriter<SimpleFeatureType, SimpleFeature> writer = getWriterInternal(Query.ALL, WRITER_ADD);
-                FeatureIterator<SimpleFeature> iterator = featureCollection.features()) {
-            while (iterator.hasNext()) {
-                SimpleFeature sourceFeature = iterator.next();
-                SimpleFeature targetFeature = writer.next();
-                logger.finest("Source feature " + sourceFeature.getAttributes());
-                for (AttributeDescriptor att : targetFeature.getFeatureType().getAttributeDescriptors()) {
-                    targetFeature.setAttribute(att.getName(), sourceFeature.getAttribute(att.getName()));
-                }
-                logger.finest("Target feature (updated) " + targetFeature.getAttributes());
-                writer.write();
-                if (sourceFeature.getIdentifier() != null) {
-                    writtenFeatureIds.add(sourceFeature.getIdentifier());
-                }
-            }
+    List<FeatureId> writtenFeatureIds = new ArrayList<>();
+    try (FeatureWriter<SimpleFeatureType, SimpleFeature> writer = getWriterInternal(Query.ALL, WRITER_ADD);
+        FeatureIterator<SimpleFeature> iterator = featureCollection.features()) {
+      while (iterator.hasNext()) {
+        SimpleFeature sourceFeature = iterator.next();
+        SimpleFeature targetFeature = writer.next();
+        logger.finest("Source feature " + sourceFeature.getAttributes());
+        for (AttributeDescriptor att : targetFeature.getFeatureType().getAttributeDescriptors()) {
+          targetFeature.setAttribute(att.getName(), sourceFeature.getAttribute(att.getName()));
         }
-
-        return writtenFeatureIds;
+        logger.finest("Target feature (updated) " + targetFeature.getAttributes());
+        writer.write();
+        if (sourceFeature.getIdentifier() != null) {
+          writtenFeatureIds.add(sourceFeature.getIdentifier());
+        }
+      }
     }
 
-    @Override
-    protected FeatureWriter<SimpleFeatureType, SimpleFeature> getWriterInternal(Query query, int flags)
-            throws IOException {
-        return new ExcelFeatureWriter(entry, query, enableCellAutoSizing);
-    }
+    return writtenFeatureIds;
+  }
 
-    @Override
-    protected FeatureReader<SimpleFeatureType, SimpleFeature> getReaderInternal(Query query) throws IOException {
-        return new ExcelFeatureReader(entry, query);
-    }
+  @Override
+  protected FeatureWriter<SimpleFeatureType, SimpleFeature> getWriterInternal(Query query, int flags)
+      throws IOException {
+    return new ExcelFeatureWriter(entry, query, enableCellAutoSizing);
+  }
 
-    @Override
-    public void setTransaction(Transaction transaction) {
-        super.setTransaction(transaction);
-    }
+  @Override
+  protected FeatureReader<SimpleFeatureType, SimpleFeature> getReaderInternal(Query query) throws IOException {
+    return new ExcelFeatureReader(entry, query);
+  }
 
-    @Override
-    protected ReferencedEnvelope getBoundsInternal(Query query) {
-        logger.severe("getBoundsInternal is not implemented for ExcelFeatureStore, returning null");
-        return null;
-    }
+  @Override
+  public void setTransaction(Transaction transaction) {
+    super.setTransaction(transaction);
+  }
 
-    @Override
-    protected int getCountInternal(Query query) {
-        logger.severe("getCount is not implemented for ExcelFeatureStore, returning -1");
-        return -1;
-    }
+  @Override
+  protected ReferencedEnvelope getBoundsInternal(Query query) {
+    logger.severe("getBoundsInternal is not implemented for ExcelFeatureStore, returning null");
+    return null;
+  }
 
-    @Override
-    public ExcelDataStore getDataStore() {
-        return (ExcelDataStore) entry.getDataStore();
-    }
+  @Override
+  protected int getCountInternal(Query query) {
+    logger.severe("getCount is not implemented for ExcelFeatureStore, returning -1");
+    return -1;
+  }
 
-    @Override
-    protected SimpleFeatureType buildFeatureType() throws IOException {
-        return getDataStore().getSchema();
-    }
+  @Override
+  public ExcelDataStore getDataStore() {
+    return (ExcelDataStore) entry.getDataStore();
+  }
+
+  @Override
+  protected SimpleFeatureType buildFeatureType() throws IOException {
+    return getDataStore().getSchema();
+  }
 }

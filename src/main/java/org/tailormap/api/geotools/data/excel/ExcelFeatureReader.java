@@ -15,29 +15,29 @@ import org.geotools.data.store.ContentEntry;
 
 public class ExcelFeatureReader implements FeatureReader<SimpleFeatureType, SimpleFeature> {
 
-    private final SimpleFeatureType featureType;
+  private final SimpleFeatureType featureType;
 
-    public ExcelFeatureReader(ContentEntry entry, Query query) throws IOException {
-        this.featureType = ((ExcelDataStore) entry.getDataStore()).getSchema();
-    }
+  public ExcelFeatureReader(ContentEntry entry, Query query) throws IOException {
+    this.featureType = ((ExcelDataStore) entry.getDataStore()).getSchema();
+  }
 
-    @Override
-    public SimpleFeatureType getFeatureType() {
-        return this.featureType;
-    }
+  @Override
+  public SimpleFeatureType getFeatureType() {
+    return this.featureType;
+  }
 
-    @Override
-    public SimpleFeature next() throws IOException, IllegalArgumentException, NoSuchElementException {
-        throw new NoSuchElementException("ExcelDataStore is write-only and does not contain readable features");
-    }
+  @Override
+  public SimpleFeature next() throws IOException, IllegalArgumentException, NoSuchElementException {
+    throw new NoSuchElementException("ExcelDataStore is write-only and does not contain readable features");
+  }
 
-    @Override
-    public boolean hasNext() {
-        return false;
-    }
+  @Override
+  public boolean hasNext() {
+    return false;
+  }
 
-    @Override
-    public void close() throws IOException {
-        // no-op: this reader does not hold resources
-    }
+  @Override
+  public void close() throws IOException {
+    // no-op: this reader does not hold resources
+  }
 }

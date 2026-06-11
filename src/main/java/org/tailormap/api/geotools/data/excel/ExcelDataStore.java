@@ -31,158 +31,158 @@ import org.geotools.feature.NameImpl;
 import org.geotools.util.logging.Logging;
 
 public class ExcelDataStore extends ContentDataStore implements FileDataStore {
-    private SimpleFeatureType schema;
-    private NameImpl typeName;
-    private final SXSSFWorkbook workbook;
-    private final File excelFile;
-    private boolean workbookDisposed = false;
-    private boolean enableCellAutoSizing;
-    private static final Logger logger = Logging.getLogger(ExcelDataStore.class);
+  private SimpleFeatureType schema;
+  private NameImpl typeName;
+  private final SXSSFWorkbook workbook;
+  private final File excelFile;
+  private boolean workbookDisposed = false;
+  private boolean enableCellAutoSizing;
+  private static final Logger logger = Logging.getLogger(ExcelDataStore.class);
 
-    /**
-     * Create an ExcelDataStore for writing to the specified Excel file.
-     *
-     * @param typeName the FeatureType name
-     * @param excelFile the file to write the Excel data to. The file will must be created/exist.
-     */
-    public ExcelDataStore(NameImpl typeName, File excelFile) {
-        this(typeName, excelFile, false);
+  /**
+   * Create an ExcelDataStore for writing to the specified Excel file.
+   *
+   * @param typeName the FeatureType name
+   * @param excelFile the file to write the Excel data to. The file will must be created/exist.
+   */
+  public ExcelDataStore(NameImpl typeName, File excelFile) {
+    this(typeName, excelFile, false);
+  }
+
+  /**
+   * Create an ExcelDataStore for writing to the specified Excel file.
+   *
+   * @param typeName the FeatureType name
+   * @param excelFile the file to write the Excel data to. The file will must be created/exist.
+   * @param enableCellAutoSizing whether to enable auto-sizing of cells when writing all features. This can
+   *     significantly impact performance for writing large datasets. Defaults to false.
+   */
+  public ExcelDataStore(NameImpl typeName, File excelFile, boolean enableCellAutoSizing) {
+    this.typeName = typeName;
+    this.excelFile = excelFile;
+    this.enableCellAutoSizing = enableCellAutoSizing;
+    // create a new workbook with a small window size for streaming
+    this.workbook = new SXSSFWorkbook(1);
+    // TODO / EVALUATE avoid performance penalty of compressing the temporary files,
+    // this.workbook.setCompressTempFiles(true);
+
+    // setting this option will make excel and old versions of open/libre office and google docs break,
+    // now it is only broken for current libreoffice
+    // see https://bugs.documentfoundation.org/show_bug.cgi?id=163384
+    // this.workbook.setZip64Mode(Zip64Mode.AlwaysWithCompatibility);
+  }
+
+  public SXSSFWorkbook getWorkbook() {
+    return workbook;
+  }
+
+  public static int getMaxRows() {
+    return SpreadsheetVersion.EXCEL2007.getMaxRows();
+  }
+
+  public static int getMaxColumns() {
+    return SpreadsheetVersion.EXCEL2007.getMaxColumns();
+  }
+
+  @Override
+  public void dispose() {
+    if (!workbookDisposed) {
+      try (workbook;
+          FileOutputStream out = new FileOutputStream(excelFile)) {
+        workbook.write(out);
+        workbook.close();
+        out.flush();
+      } catch (IOException e) {
+        logger.log(Level.SEVERE, "Error writing Excel workbook to file", e);
+      } finally {
+        workbookDisposed = true;
+      }
     }
+    super.dispose();
+  }
 
-    /**
-     * Create an ExcelDataStore for writing to the specified Excel file.
-     *
-     * @param typeName the FeatureType name
-     * @param excelFile the file to write the Excel data to. The file will must be created/exist.
-     * @param enableCellAutoSizing whether to enable auto-sizing of cells when writing all features. This can
-     *     significantly impact performance for writing large datasets. Defaults to false.
-     */
-    public ExcelDataStore(NameImpl typeName, File excelFile, boolean enableCellAutoSizing) {
-        this.typeName = typeName;
-        this.excelFile = excelFile;
-        this.enableCellAutoSizing = enableCellAutoSizing;
-        // create a new workbook with a small window size for streaming
-        this.workbook = new SXSSFWorkbook(1);
-        // TODO / EVALUATE avoid performance penalty of compressing the temporary files,
-        // this.workbook.setCompressTempFiles(true);
-
-        // setting this option will make excel and old versions of open/libre office and google docs break,
-        // now it is only broken for current libreoffice
-        // see https://bugs.documentfoundation.org/show_bug.cgi?id=163384
-        // this.workbook.setZip64Mode(Zip64Mode.AlwaysWithCompatibility);
+  @Override
+  public SimpleFeatureSource getFeatureSource() throws IOException {
+    if (typeName == null) {
+      createTypeNames();
     }
+    return super.getFeatureSource(typeName);
+  }
 
-    public SXSSFWorkbook getWorkbook() {
-        return workbook;
-    }
+  @Override
+  public FeatureWriter<SimpleFeatureType, SimpleFeature> getFeatureWriter(Filter filter, Transaction transaction)
+      throws IOException {
+    // not used in our write-only implementation scenario
+    return super.getFeatureWriter(typeName.getLocalPart(), filter, transaction);
+  }
 
-    public static int getMaxRows() {
-        return SpreadsheetVersion.EXCEL2007.getMaxRows();
-    }
+  @Override
+  public FeatureWriter<SimpleFeatureType, SimpleFeature> getFeatureWriter(Transaction transaction)
+      throws IOException {
+    // not used in our write-only implementation scenario
+    return super.getFeatureWriter(typeName.getLocalPart(), transaction);
+  }
 
-    public static int getMaxColumns() {
-        return SpreadsheetVersion.EXCEL2007.getMaxColumns();
-    }
+  @Override
+  public FeatureWriter<SimpleFeatureType, SimpleFeature> getFeatureWriterAppend(Transaction transaction)
+      throws IOException {
+    // not used in our write-only implementation scenario
+    return super.getFeatureWriterAppend(typeName.getLocalPart(), transaction);
+  }
 
-    @Override
-    public void dispose() {
-        if (!workbookDisposed) {
-            try (workbook;
-                    FileOutputStream out = new FileOutputStream(excelFile)) {
-                workbook.write(out);
-                workbook.close();
-                out.flush();
-            } catch (IOException e) {
-                logger.log(Level.SEVERE, "Error writing Excel workbook to file", e);
-            } finally {
-                workbookDisposed = true;
-            }
-        }
-        super.dispose();
+  @Override
+  protected ContentFeatureSource createFeatureSource(ContentEntry entry) throws IOException {
+    if (excelFile != null && excelFile.canWrite()) {
+      return new ExcelFeatureStore(entry, Query.ALL, this.enableCellAutoSizing);
+    } else {
+      logger.severe("Cannot write Excel File");
+      // TODO not used?
+      return new ExcelFeatureSource(entry, Query.ALL);
     }
+  }
 
-    @Override
-    public SimpleFeatureSource getFeatureSource() throws IOException {
-        if (typeName == null) {
-            createTypeNames();
-        }
-        return super.getFeatureSource(typeName);
+  @Override
+  public SimpleFeatureType getSchema() throws IOException {
+    if (schema == null) {
+      schema = getSchema(typeName);
     }
+    return schema;
+  }
 
-    @Override
-    public FeatureWriter<SimpleFeatureType, SimpleFeature> getFeatureWriter(Filter filter, Transaction transaction)
-            throws IOException {
-        // not used in our write-only implementation scenario
-        return super.getFeatureWriter(typeName.getLocalPart(), filter, transaction);
+  public Name getTypeName() {
+    if (namespaceURI != null) {
+      return new NameImpl(namespaceURI, typeName.getLocalPart());
+    } else {
+      return typeName;
     }
+  }
 
-    @Override
-    public FeatureWriter<SimpleFeatureType, SimpleFeature> getFeatureWriter(Transaction transaction)
-            throws IOException {
-        // not used in our write-only implementation scenario
-        return super.getFeatureWriter(typeName.getLocalPart(), transaction);
-    }
+  @Override
+  protected List<Name> createTypeNames() {
+    return Collections.singletonList(getTypeName());
+  }
 
-    @Override
-    public FeatureWriter<SimpleFeatureType, SimpleFeature> getFeatureWriterAppend(Transaction transaction)
-            throws IOException {
-        // not used in our write-only implementation scenario
-        return super.getFeatureWriterAppend(typeName.getLocalPart(), transaction);
-    }
+  @Override
+  public void updateSchema(SimpleFeatureType featureType) {
+    schema = featureType;
+  }
 
-    @Override
-    protected ContentFeatureSource createFeatureSource(ContentEntry entry) throws IOException {
-        if (excelFile != null && excelFile.canWrite()) {
-            return new ExcelFeatureStore(entry, Query.ALL, this.enableCellAutoSizing);
-        } else {
-            logger.severe("Cannot write Excel File");
-            // TODO not used?
-            return new ExcelFeatureSource(entry, Query.ALL);
-        }
-    }
+  @Override
+  public void createSchema(SimpleFeatureType featureType) {
+    schema = featureType;
+    typeName = (NameImpl) schema.getName();
+  }
 
-    @Override
-    public SimpleFeatureType getSchema() throws IOException {
-        if (schema == null) {
-            schema = getSchema(typeName);
-        }
-        return schema;
-    }
+  @Override
+  public FeatureReader<SimpleFeatureType, SimpleFeature> getFeatureReader() {
+    throw new UnsupportedOperationException("ExcelDataStore is write-only, cannot get reader");
+  }
 
-    public Name getTypeName() {
-        if (namespaceURI != null) {
-            return new NameImpl(namespaceURI, typeName.getLocalPart());
-        } else {
-            return typeName;
-        }
-    }
+  public boolean isEnableCellAutoSizing() {
+    return enableCellAutoSizing;
+  }
 
-    @Override
-    protected List<Name> createTypeNames() {
-        return Collections.singletonList(getTypeName());
-    }
-
-    @Override
-    public void updateSchema(SimpleFeatureType featureType) {
-        schema = featureType;
-    }
-
-    @Override
-    public void createSchema(SimpleFeatureType featureType) {
-        schema = featureType;
-        typeName = (NameImpl) schema.getName();
-    }
-
-    @Override
-    public FeatureReader<SimpleFeatureType, SimpleFeature> getFeatureReader() {
-        throw new UnsupportedOperationException("ExcelDataStore is write-only, cannot get reader");
-    }
-
-    public boolean isEnableCellAutoSizing() {
-        return enableCellAutoSizing;
-    }
-
-    public void setEnableCellAutoSizing(boolean enableCellAutoSizing) {
-        this.enableCellAutoSizing = enableCellAutoSizing;
-    }
+  public void setEnableCellAutoSizing(boolean enableCellAutoSizing) {
+    this.enableCellAutoSizing = enableCellAutoSizing;
+  }
 }
