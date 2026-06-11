@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.geotools</groupId>
     <artifactId>gt-excel-writer</artifactId>
-    <version>35.0</version>
+    <version>35.1-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>Excel writing store</name>
     <description>A DataStore for writing to Excel workbooks.</description>
@@ -28,7 +28,7 @@
     <scm>
         <connection>scm:git:git@github.com:Tailormap/gt-excel-writer.git</connection>
         <developerConnection>scm:git:git@github.com:Tailormap/gt-excel-writer.git</developerConnection>
-        <tag>gt-excel-writer-35.0</tag>
+        <tag>HEAD</tag>
         <url>https://github.com/Tailormap/gt-excel-writer/</url>
     </scm>
     <issueManagement>
