@@ -30,7 +30,7 @@ jobs:
       contents: read
       packages: read
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: 'Set up JDK'
         uses: actions/setup-java@v5
@@ -89,7 +89,7 @@ jobs:
       contents: read
     if: ${{ (github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')) }}
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: 'Set up JDK'
         uses: actions/setup-java@v5
