@@ -1,0 +1,46 @@
+name: 'Dependabot auto-merge'
+on: pull_request
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  dependabot:
+    runs-on: ubuntu-slim
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    if: github.event.pull_request.user.login == 'dependabot[bot]' && github.repository == 'Tailormap/gt-excel-writer'
+    steps:
+      - name: 'Fetch Dependabot metadata'
+        id: metadata
+        uses: dependabot/fetch-metadata@v3
+        with:
+          github-token: "${{ secrets.GITHUB_TOKEN }}"
+      - name: 'Enable auto-merge for Dependabot PRs on selected dependencies for patch and minor version updates'
+        if: |
+          ( 
+            contains(steps.metadata.outputs.dependency-names, 'junit') || 
+            contains(steps.metadata.outputs.dependency-names, 'org.geotools') ||
+            contains(steps.metadata.outputs.dependency-names, 'org.apache.poi')
+          ) && (
+            steps.metadata.outputs.update-type == 'version-update:semver-patch' || 
+            steps.metadata.outputs.update-type == 'version-update:semver-minor'
+          )
+        run: |
+          gh pr edit --remove-label "infrastructure" "${{ github.event.pull_request.html_url }}" --repo Tailormap/gt-excel-writer
+          gh pr merge --auto --squash "${{ github.event.pull_request.html_url }}" --repo Tailormap/gt-excel-writer
+        # the --repo flag can be removed once the GH tool is fixed, see https://github.com/cli/cli/issues/11055
+      - name: 'Enable auto-merge for Dependabot PRs on Maven plugins and GH actions for patch and minor version updates'
+        if: |
+          (
+            contains(steps.metadata.outputs.dependency-names, 'maven') ||
+            contains(steps.metadata.outputs.dependency-names, 'action') ||
+            contains(steps.metadata.outputs.dependency-names, 'error_prone_core')
+          ) && (
+            steps.metadata.outputs.update-type == 'version-update:semver-patch' || 
+            steps.metadata.outputs.update-type == 'version-update:semver-minor'
+          )
+        run: |
+          gh pr edit --remove-label "dependency" "${{ github.event.pull_request.html_url }}" --repo Tailormap/gt-excel-writer
+          gh pr merge --auto --squash "${{ github.event.pull_request.html_url }}" --repo Tailormap/gt-excel-writer
