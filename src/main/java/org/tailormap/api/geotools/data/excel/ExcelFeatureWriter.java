@@ -21,6 +21,7 @@ import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.util.WorkbookUtil;
 import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.geotools.api.data.FeatureWriter;
@@ -91,7 +92,7 @@ public class ExcelFeatureWriter implements FeatureWriter<SimpleFeatureType, Simp
 
     @SuppressWarnings("PMD.CloseResource") // the workbook is managed in the store
     final SXSSFWorkbook workbook = this.dataStore.getWorkbook();
-    this.sheet = workbook.createSheet(entry.getTypeName());
+    this.sheet = workbook.createSheet(WorkbookUtil.createSafeSheetName(entry.getTypeName(), '_'));
     if (this.enableCellAutoSizing) {
       this.sheet.trackAllColumnsForAutoSizing();
     }
